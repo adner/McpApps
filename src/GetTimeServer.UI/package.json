@@ -1,0 +1,29 @@
+{
+  "name": "get-time-server-ui",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build && vite build --mode contact && vite build --mode contactlist && vite build --mode opportunity && vite build --mode opportunitylist && vite build --mode opportunitychart && vite build --mode opportunitytopgraph",
+    "build:index": "tsc && vite build",
+    "build:contact": "tsc && vite build --mode contact",
+    "build:contactlist": "tsc && vite build --mode contactlist",
+    "build:opportunity": "tsc && vite build --mode opportunity",
+    "build:opportunitylist": "tsc && vite build --mode opportunitylist",
+    "build:opportunitychart": "tsc && vite build --mode opportunitychart",
+    "build:opportunitytopgraph": "tsc && vite build --mode opportunitytopgraph"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/ext-apps": "latest",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^4.0.0",
+    "typescript": "^5.6.0",
+    "vite": "^6.0.0",
+    "vite-plugin-singlefile": "^2.0.0"
+  }
+}

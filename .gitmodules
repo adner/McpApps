@@ -1,0 +1,3 @@
+[submodule "csharp-sdk"]
+	path = csharp-sdk
+	url = https://github.com/adner/csharp-sdk.git
