@@ -1,5 +1,7 @@
+using System.Text.Json.Nodes;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Query;
+using ModelContextProtocol.Protocol;
 using ModelContextProtocol.Server;
 using System.ComponentModel;
 
@@ -36,8 +38,8 @@ public class ContactTool
 
     [McpServerTool(Name = "UploadContactImage")]
     [Description("Uploads a photo as the entity image for a contact record in Dataverse. Only callable by the contact form UI.")]
-    [McpMeta("ui", JsonValue = """{"visibility":["app"]}""")]
-    public static string UploadContactImage(
+
+    public static CallToolResult UploadContactImage(
         string id,
         string logicalName,
         [Description("Base64-encoded image data (without the data:image/... prefix)")]
@@ -49,18 +51,29 @@ public class ContactTool
             var entity = new Entity(logicalName, Guid.Parse(id));
             entity["entityimage"] = Convert.FromBase64String(imageBase64);
             orgService.Update(entity);
-            return "Contact image updated successfully.";
+            var message = "Contact image updated successfully.";
+            return new CallToolResult
+            {
+                Content = [new TextContentBlock { Text = message }],
+                StructuredContent = new JsonObject { ["success"] = true, ["message"] = message }
+            };
         }
         catch (Exception ex)
         {
-            return $"[ERROR] {ex.Message}";
+            var message = $"[ERROR] {ex.Message}";
+            return new CallToolResult
+            {
+                Content = [new TextContentBlock { Text = message }],
+                StructuredContent = new JsonObject { ["success"] = false, ["message"] = message },
+                IsError = true
+            };
         }
     }
 
     [McpServerTool(Name = "GetContactImage")]
     [Description("Retrieves the entity image for a contact record from Dataverse. Only callable by app UIs.")]
-    [McpMeta("ui", JsonValue = """{"visibility":["app"]}""")]
-    public static string GetContactImage(
+
+    public static CallToolResult GetContactImage(
         string id,
         string logicalName,
         IOrganizationService orgService)
@@ -71,20 +84,41 @@ public class ContactTool
             if (entity.Contains("entityimage") && entity["entityimage"] is byte[] imageBytes && imageBytes.Length > 0)
             {
                 var base64 = Convert.ToBase64String(imageBytes);
-                return $$$"""{"hasImage":true,"base64":"{{{base64}}}","mimeType":"image/jpeg"}""";
+                var structured = new JsonObject
+                {
+                    ["hasImage"] = true,
+                    ["base64"] = base64,
+                    ["mimeType"] = "image/jpeg"
+                };
+                return new CallToolResult
+                {
+                    Content = [new TextContentBlock { Text = structured.ToJsonString() }],
+                    StructuredContent = structured
+                };
             }
-            return """{"hasImage":false}""";
+            var noImage = new JsonObject { ["hasImage"] = false };
+            return new CallToolResult
+            {
+                Content = [new TextContentBlock { Text = noImage.ToJsonString() }],
+                StructuredContent = noImage
+            };
         }
         catch (Exception ex)
         {
-            return $"[ERROR] {ex.Message}";
+            var message = $"[ERROR] {ex.Message}";
+            return new CallToolResult
+            {
+                Content = [new TextContentBlock { Text = message }],
+                StructuredContent = new JsonObject { ["success"] = false, ["message"] = message },
+                IsError = true
+            };
         }
     }
 
     [McpServerTool(Name = "UpdateContact")]
     [Description("Updates a contact record in Dataverse. Only callable by the contact form UI.")]
-    [McpMeta("ui", JsonValue = """{"visibility":["app"]}""")]
-    public static string UpdateContact(
+
+    public static CallToolResult UpdateContact(
         string id,
         string logicalName,
         IOrganizationService orgService,
@@ -106,11 +140,22 @@ public class ContactTool
 
             orgService.Update(entity);
 
-            return "Contact updated successfully.";
+            var message = "Contact updated successfully.";
+            return new CallToolResult
+            {
+                Content = [new TextContentBlock { Text = message }],
+                StructuredContent = new JsonObject { ["success"] = true, ["message"] = message }
+            };
         }
         catch (Exception ex)
         {
-            return $"[ERROR] {ex.Message}";
+            var message = $"[ERROR] {ex.Message}";
+            return new CallToolResult
+            {
+                Content = [new TextContentBlock { Text = message }],
+                StructuredContent = new JsonObject { ["success"] = false, ["message"] = message },
+                IsError = true
+            };
         }
     }
 }

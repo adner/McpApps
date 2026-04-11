@@ -1,4 +1,6 @@
+using System.Text.Json.Nodes;
 using Microsoft.Xrm.Sdk;
+using ModelContextProtocol.Protocol;
 using ModelContextProtocol.Server;
 using System.ComponentModel;
 using System.Globalization;
@@ -59,8 +61,8 @@ public class OpportunityTool
 
     [McpServerTool(Name = "UpdateOpportunity")]
     [Description("Updates an opportunity record in Dataverse. Only callable by the opportunity form UI.")]
-    [McpMeta("ui", JsonValue = """{"visibility":["app"]}""")]
-    public static string UpdateOpportunity(
+
+    public static CallToolResult UpdateOpportunity(
         string id,
         string logicalName,
         IOrganizationService orgService,
@@ -80,11 +82,22 @@ public class OpportunityTool
 
             orgService.Update(entity);
 
-            return "Opportunity updated successfully.";
+            var message = "Opportunity updated successfully.";
+            return new CallToolResult
+            {
+                Content = [new TextContentBlock { Text = message }],
+                StructuredContent = new JsonObject { ["success"] = true, ["message"] = message }
+            };
         }
         catch (Exception ex)
         {
-            return $"[ERROR] {ex.Message}";
+            var message = $"[ERROR] {ex.Message}";
+            return new CallToolResult
+            {
+                Content = [new TextContentBlock { Text = message }],
+                StructuredContent = new JsonObject { ["success"] = false, ["message"] = message },
+                IsError = true
+            };
         }
     }
 }
