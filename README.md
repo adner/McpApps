@@ -16,9 +16,15 @@ This repo demonstrates the pattern with a C#/.NET MCP server that connects to Da
 **Plain tools (no UI):**
 - WhoAmI — calls the Dataverse WhoAmI endpoint
 - ExecuteFetch — runs FetchXML queries against Dataverse
-- UpdateContact / UpdateOpportunity — write-back tools called by the UIs, hidden from the model
+- UpdateContact / UploadContactImage / GetContactImage / UpdateOpportunity — write-back tools called by the UIs
 
 Each MCP App is a pair: a **tool** (server-side logic that returns data) bound to a **resource** (a static HTML template served via `ui://` that renders the data client-side). The host prefetches and caches the templates, then populates them with tool results at runtime.
+
+## Declarative agent compatibility
+
+The write-back tools (`UpdateContact`, `UploadContactImage`, `GetContactImage`, `UpdateOpportunity`) were originally restricted to app-only visibility (`"visibility": ["app"]`), meaning only the MCP Apps UI could call them — not the model. This restriction was relaxed so that these tools are now visible to both the model and the app. The change was needed for compatibility with the MCP JavaScript widget that powers [Microsoft declarative agent](https://learn.microsoft.com/en-us/microsoft-365-copilot/extensibility/overview-declarative-copilot) integration, which calls tools directly rather than through the MCP Apps iframe messaging channel (?). The tools also now return structured results (`StructuredContent`) alongside the text fallback - also to make it work with the declarative agent widget, that expects this format.
+
+See it in action: [LinkedIn post](https://www.linkedin.com/posts/andreasadner_powerapps-microsoftcopilot-activity-7448784585456357376-X9bX)
 
 ## Stack
 
